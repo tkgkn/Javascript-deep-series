@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>原型和原型链</title>
+  </head>
+  <body>
+    <script type="text/javascript">
+      // 原型怎么产生的？
+      // 每个函数即会有一个prototype属性，该属性指向的对象即是原型。注意描述，原型即是一个对象。
+      // 哦，对了，不仅函数指向它，由该函数通过new方式构造出的<实例对象>也指向它。
+      // 来看个例子
+      function Person() {
+
+      }
+      var person = new Person();
+      person.name = 'Jack';
+      console.log(person.name); // Jack
+      // 在这个例子中，Person即是函数（也叫<构造函数>，通常构造函数都是大写字母开头）
+      // person即是通过构造函数Person使用关键字new构造出来的实例对象。
+      // 原型prototpye是只有函数才有的。可以声明一个普通对象，观察到没有prototype。
+    </script>
+    <script type="text/javascript">
+      // what's __proto__
+      // 这个，在ECMA262第5版中，就是对应的[[prototype]]，指向原型对象本身，但并没有脚本可以访问该属性。谷歌火狐浏览器厂商在实现上，为我们创造了一个__proto__属性，指向原型对象本身。
+      // 任何一个对象（函数也是对象）都有__proto__。
+      // 所以，构造函数，实例，prototype,__proto__的关系可以简单描述为图1
+    </script>
+    <img src="//github.com/mqyqingfeng/Blog/raw/master/Images/prototype2.png" alt="图1" title="图片1">
+    <script type="text/javascript">
+      // what's constructor
+      // 构造函数可以被new很多次，就像构造函数是爸爸，实例是儿子一样。总要知道，儿子是谁生的吧，不然岂不是乱套了。
+      // 所以，constructor产生了。实例并没有constructor跟构造函数直接挂钩，而是实例通过__proto__（即ECMA262第五版[[prototype]]）指向原型对象，f.prototype，原型对象里有一个属性constructor指向了构造函数本身。
+    </script>
+    <img src="//github.com/mqyqingfeng/Blog/raw/master/Images/prototype3.png" alt="图2" title="图片2">
+    <script type="text/javascript">
+      // 通过代码来了解下 构造函数，实例，prototype,__proto__,constructor 5者的关系
+      function Person() {}
+      var person = new Person();
+      console.log(person.__proto__ == Person.prototype); // true
+      console.log(Person.prototype.constructor == Person); // true
+
+      // 判断关系的一些函数,操作符
+      // isPrototypeOf()  原型对象 是否存在于 某一个对象的原型链中
+      console.log('isPrototypeOf:', Person.prototype.isPrototypeOf(person)); // true
+
+      // instanceof 一个对象的原型链中 是否存在一个 构造函数Person的prototype属性
+      // person的原型链中 是否存在指向Person的prototype属性，打开控制台，当然有啦
+      console.log('instanceof:', person instanceof Person);
+    </script>
+  </body>
+</html>
