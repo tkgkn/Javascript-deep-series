@@ -1,52 +1,78 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <title>原型和原型链</title>
-  </head>
-  <body>
-    <script type="text/javascript">
-      // 原型怎么产生的？
-      // 每个函数即会有一个prototype属性，该属性指向的对象即是原型。注意描述，原型即是一个对象。
-      // 哦，对了，不仅函数指向它，由该函数通过new方式构造出的<实例对象>也指向它。
-      // 来看个例子
-      function Person() {
 
-      }
-      var person = new Person();
-      person.name = 'Jack';
-      console.log(person.name); // Jack
-      // 在这个例子中，Person即是函数（也叫<构造函数>，通常构造函数都是大写字母开头）
-      // person即是通过构造函数Person使用关键字new构造出来的实例对象。
-      // 原型prototpye是只有函数才有的。可以声明一个普通对象，观察到没有prototype。
-    </script>
-    <script type="text/javascript">
-      // what's __proto__
-      // 这个，在ECMA262第5版中，就是对应的[[prototype]]，指向原型对象本身，但并没有脚本可以访问该属性。谷歌火狐浏览器厂商在实现上，为我们创造了一个__proto__属性，指向原型对象本身。
-      // 任何一个对象（函数也是对象）都有__proto__。
-      // 所以，构造函数，实例，prototype,__proto__的关系可以简单描述为图1
-    </script>
-    <img src="//github.com/mqyqingfeng/Blog/raw/master/Images/prototype2.png" alt="图1" title="图片1">
-    <script type="text/javascript">
-      // what's constructor
-      // 构造函数可以被new很多次，就像构造函数是爸爸，实例是儿子一样。总要知道，儿子是谁生的吧，不然岂不是乱套了。
-      // 所以，constructor产生了。实例并没有constructor跟构造函数直接挂钩，而是实例通过__proto__（即ECMA262第五版[[prototype]]）指向原型对象，f.prototype，原型对象里有一个属性constructor指向了构造函数本身。
-    </script>
-    <img src="//github.com/mqyqingfeng/Blog/raw/master/Images/prototype3.png" alt="图2" title="图片2">
-    <script type="text/javascript">
-      // 通过代码来了解下 构造函数，实例，prototype,__proto__,constructor 5者的关系
-      function Person() {}
-      var person = new Person();
-      console.log(person.__proto__ == Person.prototype); // true
-      console.log(Person.prototype.constructor == Person); // true
+<head>
+  <meta charset="utf-8">
+  <title>原型和原型链</title>
+</head>
 
-      // 判断关系的一些函数,操作符
-      // isPrototypeOf()  原型对象 是否存在于 某一个对象的原型链中
-      console.log('isPrototypeOf:', Person.prototype.isPrototypeOf(person)); // true
+<body>
+  <script type="text/javascript">
+    // 原型怎么产生的？
+    // 每个函数即会有一个prototype属性，该属性指向的对象即是原型。注意描述，原型即是一个对象。
+    // 哦，对了，不仅函数指向它，由该函数通过new方式构造出的<实例对象>也指向它。
+    // 来看个例子
+    function Person() {
 
-      // instanceof 一个对象的原型链中 是否存在一个 构造函数Person的prototype属性
-      // person的原型链中 是否存在指向Person的prototype属性，打开控制台，当然有啦
-      console.log('instanceof:', person instanceof Person);
-    </script>
-  </body>
+    }
+    var person = new Person();
+    person.name = 'Jack';
+    console.log(person.name); // Jack
+    // 在这个例子中，Person即是函数（也叫<构造函数>，通常构造函数都是大写字母开头）
+    // person即是通过构造函数Person使用关键字new构造出来的实例对象。
+    // 原型prototpye是只有函数才有的。可以声明一个普通对象，观察到没有prototype。
+  </script>
+
+  <script type="text/javascript">
+    // what's __proto__
+    // 这个，在ECMA262第5版中，就是对应的[[prototype]]，指向原型对象本身，但并没有脚本可以访问该属性。谷歌火狐浏览器厂商在实现上，为我们创造了一个__proto__属性，指向原型对象本身。
+    // 任何一个对象（函数也是对象）都有__proto__。
+    // 所以，构造函数，实例，prototype,__proto__的关系可以简单描述为图1
+  </script>
+  <img src="//github.com/mqyqingfeng/Blog/raw/master/Images/prototype2.png" alt="图1" title="图片1">
+
+  <script type="text/javascript">
+    // what's constructor
+    // 构造函数可以被new很多次，就像构造函数是爸爸，实例是儿子一样。总要知道，儿子是谁生的吧，不然岂不是乱套了。
+    // 所以，constructor产生了。不过实例并没有constructor，所以并不是直接跟构造函数直接挂钩，而是通过__proto__（即ECMA262第五版[[prototype]]）指向原型对象fn.prototype，原型对象里有一个属性constructor指向了构造函数本身。根据作用域链，实例访问constructor即访问原型上的该属性。
+    person.constructor === Person.prototype.constructor; // true
+  </script>
+  <img src="//github.com/mqyqingfeng/Blog/raw/master/Images/prototype3.png" alt="图2" title="图片2">
+
+  <script type="text/javascript">
+    // 通过代码来了解下 构造函数，实例，prototype,__proto__,constructor 5者的关系
+    function Person() {}
+    var person = new Person();
+    console.log('person.__proto__ === Person.prototype:',person.__proto__ === Person.prototype); // true
+    console.log('Person.prototype.constructor === Person:', Person.prototype.constructor === Person); // true
+
+    // 判断关系的一些函数,操作符
+    // isPrototypeOf()  原型对象 是否存在于 某一个对象的原型链中
+    console.log('isPrototypeOf:', Person.prototype.isPrototypeOf(person)); // true
+
+    // Object.getPrototypeOf() 获取对象的原型
+    console.log('getPrototypeOf:', Object.getPrototypeOf(person) === Person.prototype)
+
+    // instanceof 一个对象的原型链中 是否存在一个 构造函数Person的prototype属性(通俗点理解：实例是否由某个构造函数构造产生，该操作符并无法准确判断实例和构造函数的关系，因此还是用别的方式判断稳妥，如上面的方式)
+    // person的原型链中 是否存在指向Person的prototype属性，打开控制台，当然有啦
+    console.log('instanceof:', person instanceof Person);
+  </script>
+
+  <script type="text/javascript">
+    // 原型的原型？
+    // 思考一下，既然原型对象也是对象，那么是对象就应该有一个__proto__(正如上面27行所讲到的)，打开控制台，可以看见Person.prototype有一个__proto__属性，点开__proto__后，没错，你已经点开了有一个原型（这就是原型的原型对象），发现该原型对象的constructor属性是内置的Object()函数。(还记得前面说的吗？原型对象上有一个constructor属性指向构造函数本身)
+    // 所以Person原型对象的原型就是Object.prototype。
+    // 那Object.prototype的原型对象又是谁呢？会不会无尽模式，永远的一层层找下去？答案是NO，如果是无尽模式，岂不是死循环了！
+    console.log('Object.prototype.__proto__:',Object.prototype.__proto__); // null
+    // 结果很意外，但是却应该是这样，原型链的最深处，到Object.prototype就结束了！
+  </script>
+
+  <script type="text/javascript">
+    // 注意几点
+    // 1、__proto__是非标准的访问原型对象的属性，绝大多数浏览器却也都支持。如果在控制台打印Object.prototype，点开你会发现并没有的__proto__，取而代之是一个get __proto__和一个set __proto__。所以说__proto__也是存在的，只不过存在于最上层的Object.prototype中，去访问Object.prototype.__proto__则会触发get __proto__，返回对应的get里的值。
+
+    // 2、原型链层层相关，却并没有发生复制，没错，没有发生复制，他们是仅仅的连接在一起的，就像很多截麻绳，头尾相接，拧在一起，变得很长很长，但是谁也没有复制谁，他们还是自己，只是他们现在被关联在了一起，成为了“一条麻绳”。JS中实现继承靠的就是原型链，而继承就意味着复制，如果没有复制，就不算是真正意义的继承，在你不知道的Javascript书中，作者描述此现象叫做委托（关联），这样更贴切JS这么语言的'继承'特性！
+  </script>
+</body>
+
 </html>
