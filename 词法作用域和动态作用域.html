@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title></title>
+</head>
+
+<body>
+  <script type="text/javascript">
+    // 明确一点，JS中采用的是词法作用域，也叫静态作用域，也就是书写代码的时候，就已经决定下来了，而不是动态作用域那种运行时决定的。
+    // 作用域，JS中常见的就是函数作用域(ES6中新增了块作用域，通过{})，规定了如何查找变量。我们就着重来看下函数作用域。
+    // 看例子
+    var a = 1;
+
+    function foo() {
+      console.log(a); // 1
+    }
+
+    function bar() {
+      var a = 2;
+      foo(); // 1 不是2哦！
+    }
+    bar();
+
+    // 这里用冴羽的假设法来理解，比较方便点。
+    // 假设是动态作用域，那如大家所想，foo函数是在bar里面被调用的，理所当然的访问bar的函数作用域，此时bar的函数作用域里面有var a = 2，所以打印的应该是2。
+    // 但是JS偏偏是静态作用域，假设无效，因此a打印不是2！不是2！不是2！
+    // JS是静态作用域，函数的作用域是在定义的时候就决定了，看看foo定义在那，哦，定义在外面，它能访问的只有外面的作用域了，bar函数的作用域这辈子是访问不了了。所以访问到外面的var a = 1，打印是1
+  </script>
+  <script type="text/javascript">
+    // 引用Javascript权威指南中的代码
+    var scope = "global scope";
+
+    function checkscope() {
+      var scope = "local scope";
+
+      function f() {
+        return scope;
+      }
+      return f();
+    }
+    checkscope();
+
+    var scope = "global scope";
+
+    function checkscope() {
+      var scope = "local scope";
+
+      function f() {
+        return scope;
+      }
+      return f;
+    }
+    checkscope()();
+    // 如果清晰的了解上面所说的JS是静态作用域之后，这2段代码就很好解释，f函数定义的位置，就决定了他能访问的作用域，因此访问到的scope都是local scope
+  </script>
+</body>
+
+</html>
