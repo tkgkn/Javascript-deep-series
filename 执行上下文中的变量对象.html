@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>变量对象</title>
+  </head>
+  <body>
+    <script>
+      // 变量对象是什么？
+      // 规定了当前执行上下文可以访问的一些变量，函数。
+
+      // 变量对象都有个啥？
+      // 里面有该执行上下文的函数和变量，arguments对象，还有parameter。
+
+      // 变量对象是如何产生的？
+      // 执行上下文创建之初（分为2各阶段，创建和执行），上下文创建阶段会创建变量对象，建立作用域链，确定this指向。
+
+      // 具体说说变量对象的创建过程。
+      // 变量对象是Variable Object，下面会简写VO
+      // 1、变量对象建立之初只有arguments对象（前提是函数环境，因为全局上下文是没有arguments对象的），检查当前上下文中的参数，建立该对象下的属性和属性值。
+      // 如何理解？
+      function fn1(a,b) {
+        console.log(a, b, c);
+        var c = 3;
+        console.log(a, b, c);
+        function fn2() {
+          console.log(a + b);
+        }
+      }
+      fn1(1,2);
+      // 遇到fn(1,2)，创建执行上下文，执行上下文创建之初，只有arguments对象，此时的VO中只有arguments对象：
+      VO = {
+        argumentsObj = {
+          a: 1, // 注意并不是undefined
+          b: 2,
+          length: 2
+        }
+      }
+
+      // 2、检查当前上下文的函数声明。也就是function关键字声明的函数。将其函数名作为属性在VO中创建，其函数所在内存中的地址引用为属性值。此时VO是
+      VO = {
+        argumentsObj = {
+          a: 1, // 注意并不是undefined
+          b: 2,
+          length: 2
+        },
+        fn2: <fn2 reference> // 值是地址引用
+      }
+
+      // 3、检查当前上下文的变量声明。也就是var关键字声明的变量，将其变量名作为属性在VO中创建，其值设为undefined。
+      VO = {
+        argumentsObj = {
+          a: 1, // 注意并不是undefined
+          b: 2,
+          length: 2
+        },
+        fn2: <fn2 reference>, // 值是地址引用
+        c: undefined
+      }
+
+      // 以上过程都是在执行上下文的创建阶段完成，此时是不能访问对象中的属性的。
+
+
+
+      // 然后开始了执行上下文的执行阶段，执行阶段VO会变成活动对象AO
+
+      // 执行console.log(a, b, c)
+      // 查看上面最后的VO（AO了此时应该），打印1,2，undefined。
+
+      // 执行c = 3;VO对象被修改，变为如下。
+      AO = {
+        argumentsObj = {
+          a: 1,
+          b: 2,
+          length: 2
+        },
+        fn2: <fn2 reference>, // 值是地址引用
+        c: 3
+      }
+      // 所以打印的是1, 2, 3。
+      // 去看看控制台，没有任何问题。
+    </script>
+    <script>
+      // 看个例子
+      function foo() {
+        console.log(a); // 这里执行会报错，因为没有用var声明，变量对象里面并没有。
+        a = 1;
+      }
+      foo(); 
+
+      function bar() {
+        a = 2;
+        console.log(a); // 假设上面的报错可以忽略，这里执行会打印2。
+      }
+      bar();
+    </script>
+    <script>
+      console.log(foo); // 这里打印出函数，函数名和变量名一样的话，函数会优先处理，变量则不会去管了。
+      function foo() {
+        console.log('foo')
+      }
+      var foo = 1;
+    </script>
+  </body>
+</html>

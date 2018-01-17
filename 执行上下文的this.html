@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>this</title>
+</head>
+
+<body>
+  <script>
+    /* 函数调用时，this指向确认。也就是执行上下文被创建的时候确定的。函数的this是非常灵活的 */
+    var a = 10;
+    var obj = {
+      a: 20
+    }
+    function fn() {
+      console.log(this.a)
+    }
+    fn(); // 10
+    fn.call(obj); // 20
+  </script>
+  <script>
+    /* 函数执行过程中，this确认后，不可更改 */
+    var a = 10;
+    var obj = {
+      a: 20
+    }
+    function fn() {
+      this = obj;
+      console.log(this.a);
+    }
+  </script>
+
+  <script>
+    var value = 1;
+
+    var foo = {
+      value: 2,
+      bar: function() {
+        return this.value;
+      }
+    }
+    console.log((false || foo.bar)()); // 1
+  </script>
+</body>
+
+</html>

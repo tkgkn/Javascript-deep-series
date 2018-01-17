@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>执行上下文栈</title>
+  </head>
+  <body>
+    <script type="text/javascript">
+      // JS代码是怎么执行的？按顺序吗？
+      // 看这段代码
+      var foo = function(){
+        console.log('foo1');
+      }
+      foo(); // foo1
+      var foo = function() {
+        console.log('foo2');
+      }
+      foo(); // foo2
+
+      // 这么看起来没问题，按从上到下的顺序执行JS。
+    </script>
+    <script type="text/javascript">
+      // 可是这段代码转眼就把上段代码的结论击碎！如果按从上到下，应该是foo1,foo2才对，结果却是2个foo2!
+      function foo() {
+        console.log('foo1')
+      }
+      foo(); // foo2
+      function foo(){
+        console.log('foo2')
+      }
+      foo(); // foo2
+
+      // 先简单的解释：
+      // 第一个例子是变量提升，foo被提升到作用域顶部，是undefined，然后foo被赋值为函数执行后，foo1，foo再次被赋值覆盖原来的函数，执行，foo2
+      // 第二段代码是函数提升，有意思的是，多个函数，且函数名一致，提升的过程后者总会覆盖掉前者，因此最终foo函数覆盖的是第二个，所以当foo调用2次执行的时候，打印的是foo2
+      // 其实涉及到的点是执行上下文，还有执行上下文中的变量对象（活动对象）
+    </script>
+    <script type="text/javascript">
+      // 什么是执行上下文？
+      // JS中有3种执行环境，全局环境，函数环境，eval代码，每次遇到全局环境，函数调用，eval执行，都会创建一个执行上下文。
+
+      // 执行上下文在一段代码中可以很多，也可以很少，具体看代码实现。不管多少，它们都是在执行上下文栈中来被管理。
+      // 栈数据结构，类似于乒乓球盒子（假设只从一端拿球和放球），则第一个放进去的球，在最里面，依次放入。当我们需要用的时候，肯定得从最外面的开始拿，也就是最后一个放进去的球，第一个被拿出来打。这种后进先出的数据结构，就叫做栈。
+
+      // 我们来模拟一下JS中执行上下文栈的行为。
+      // 以这段函数为例
+      function fn3(){
+        console.log('fn3')
+      }
+      function fn2(){
+        fn3();
+      }
+      function fn1(){
+        fn2();
+      }
+      fn1();
+
+      var contextArr = [];
+      // 第一个遇到的总是全局环境
+      contextArr.push('globalContext');
+      // 注意前面所说，遇到函数调用时才创建执行上下文。
+      // 因此遇到fn1()调用，创建fn1的执行上下文
+      contextArr.push('fn1Context');
+      // fn1执行，进入fn1代码，遇到fn2()调用，创建fn2的执行上下文
+      contextArr.push('fn2Context');
+      // fn2执行，进入fn2代码，遇到fn3()调用，创建fn3的执行上下文
+      contextArr.push('fn3Context');
+      console.log(contextArr);
+
+      // 然后fn3执行，里面没有别的函数调用了，因此顺利执行完代码
+      contextArr.pop(); // fn3最后一个进来，第一个出去，代码执行完，将fn3Context从执行上下文栈中弹出。将代码控制权返回给之前的执行环境，也就是fn2Context。
+      contextArr.pop(); // fn2执行完毕，将fn2Context从执行上下文弹出，控制权返回给之前的执行环境，也就是fn1Context。
+      contextArr.pop(); // fn1执行完，将fn1Context从执行上下文弹出，控制权这时是交给全局globalContext。（全局执行上下文是当浏览器关闭后被销毁）
+      // 所以此时contextArr是['globalContext'];
+    </script>
+    <script type="text/javascript">
+      // 执行上下文中最重要的是变量对象，理解了这个，各类函数分析才更加清楚
+    </script>
+  </body>
+</html>

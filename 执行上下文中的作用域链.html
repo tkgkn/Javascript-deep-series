@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>作用域链</title>
+</head>
+
+<body>
+  <script>
+    // 了解了变量对象后，作用域链也相对容易理解很多。
+    // 什么是作用域链？
+    // 多个执行上下文中的变量对象按照一定规则串起来，就是作用域链。
+
+    // 作用域链的产生？
+    // 执行上下文的创建阶段会创建作用域链，还记得吧？
+
+    // 作用域在哪？
+    // 函数创建的时候就已经有了，且用不可更改。存在于函数的内部属性[[scope]]中，这里保存了除了自己的变量对象以外的所有的父级变量对象。
+  </script>
+  <script>
+    // 以代码为例子来分析。
+    // 创建函数，执行上下文的创建阶段，此时[[scope]]被创建。
+    function foo() {
+      function bar() {
+
+      }
+    }
+    // 分别保存作用域链到函数的内部属性[[scope]]
+    foo.[[scope]] = [
+      globalContext.VO
+    ]
+    bar.[[scope]] = [
+      fooContext.VO,
+      globalContext.VO
+    ]
+
+    // 然后进入函数上下文，即函数激活。会将变量对象（活动对象）添加到作用域链的前端。
+    // 因此此时的
+    // foo.Scope = fooContext.AO.concat(globalContext.VO)
+    // 即[fooContext.AO, globalContext.VO]
+
+    // bar.Scope = barContext.AO.concat(fooContext.AO.concat(globalContext.VO));
+    // 即[barContext.AO, fooContext.AO, globalContext.VO]
+  </script>
+  <script>
+    // 再来一个例子
+    var scope = 'global scope';
+
+    function checkscope() {
+      var scope2 = 'local scope';
+      return scope2;
+    }
+    checkscope();
+
+    // 执行过程：
+    // 1、checkscope函数被创建，保存作用域链到checksopce的内部属性[[scope]]
+    checkscope.[[scope]] = {
+      globalContext.VO
+    }
+    // 2、执行checkscope()函数，checkscope执行上下文被创建，并且压入ECS
+    // 此时的ECStack
+    ECStack = [
+      checkscopeContext,
+      globalContext // 全局执行上下文早早就已经压入上下文栈
+    ]
+
+    // 3、checkscope函数执行阶段前，准备工作开始
+    // 第一步：复制函数[[scope]]属性创建作用域链
+    checkscopeContext = {
+      Scope: checkscope.[[scope]]
+    }
+    // 第二步：用arguments创建变量对象，然后初始化变量对象，寻找函数声明，变量声明初始化值
+    checkscopeContext = {
+      VO: {
+        arguments: {
+          length: 0
+        },
+        scope2: undefined
+      },
+      Scope: checkscope.[[scope]]
+    }
+    // 第三步：把变量对象压入checkscope作用域链顶端
+    checkscopeContext = {
+      VO: {
+        arguments: {
+          length: 0
+        },
+        scope2: undefined
+      },
+      Scope: [checkscopeContext.VO, checkscope.[[scope]]]
+    }
+
+    // 准备工作做完，开始执行函数中的代码，VO对象变为AO对象。
+    checkscopeContext = {
+      AO: {
+        arguments: {
+          length: 0
+        },
+        scope2: 'local scope'
+      },
+      Scope: [checkscopeContext.VO, checkscope.[[scope]]]
+    }
+
+    // return scope2; 寻找scope2，在作用域前端的checkscopeContext.VO中招到了scope2的值。即local scope。
+    // checkscope()执行完毕，上下文出栈。此时只剩下
+    ECStack = [
+      globalContext
+    ]
+  </script>
+</body>
+
+</html>
