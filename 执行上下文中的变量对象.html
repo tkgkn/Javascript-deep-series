@@ -31,19 +31,23 @@
       // 遇到fn(1,2)，创建执行上下文，执行上下文创建之初，只有arguments对象，此时的VO中只有arguments对象：
       VO = {
         argumentsObj = {
-          a: 1, // 注意并不是undefined
-          b: 2,
+          0: 1, // 注意并不是undefined
+          1: 2,
           length: 2
-        }
+        },
+        a: 1,
+        b: 2
       }
 
       // 2、检查当前上下文的函数声明。也就是function关键字声明的函数。将其函数名作为属性在VO中创建，其函数所在内存中的地址引用为属性值。此时VO是
       VO = {
         argumentsObj = {
-          a: 1, // 注意并不是undefined
-          b: 2,
+          0: 1, // 注意并不是undefined
+          1: 2,
           length: 2
         },
+        a: 1,
+        b: 2,
         fn2: <fn2 reference> // 值是地址引用
       }
 

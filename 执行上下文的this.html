@@ -6,44 +6,195 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>this</title>
+  <link rel="stylesheet" href="./common.css">
 </head>
 
-<body>
-  <script>
-    /* 函数调用时，this指向确认。也就是执行上下文被创建的时候确定的。函数的this是非常灵活的 */
-    var a = 10;
-    var obj = {
-      a: 20
-    }
-    function fn() {
-      console.log(this.a)
-    }
-    fn(); // 10
-    fn.call(obj); // 20
-  </script>
-  <script>
-    /* 函数执行过程中，this确认后，不可更改 */
-    var a = 10;
-    var obj = {
-      a: 20
-    }
-    function fn() {
-      this = obj;
-      console.log(this.a);
-    }
-  </script>
+<body class="bg-dark">
+  <div class="eg">
+    <p>函数调用时，this指向确认。也就是执行上下文被创建的时候确定的。函数的this是非常灵活的</p>
+    <script>
+      (function () {
+        var a = 10;
+        var obj = {
+          a: 20
+        }
 
-  <script>
-    var value = 1;
+        function fn() {
+          console.log(this.a)
+        }
+        fn(); // 10
+        fn.call(obj); // 20
+      })()
+    </script>
+  </div>
+  <div class="eg">
+    <p>函数执行过程中，this确认后，不可更改</p>
+    <script>
+      (function () {
+        /* */
+        var a = 10;
+        var obj = {
+          a: 20
+        }
 
-    var foo = {
-      value: 2,
-      bar: function () {
-        return this.value;
+        function fn() {
+          this = obj; //Invalid left-hand side in assignment
+          console.log(this.a);
+        }
+      })()
+    </script>
+  </div>
+  <div class="eg">
+    <p>若函数是独立调用，则函数内部的this指向undefined（非严格模式则指向全局window)</p>
+    <p>若函数是被某个对象拥有调用，则函数内部this指向该对象</p>
+    <p class="orange">分析函数的最根本的调用点，如何被调用是最重要的。</p>
+    <ul>
+      <li class="indent">demo1的fn是独立调用的</li>
+      <li class="indent">demo2的fn和foo都是独立调用的</li>
+      <li class="indent">demo3的obj.c得到的是20。因为对象obj本身形成不了作用域，除非是ES6的let配合{}作用域。obj.fn()得到10，因为fn调用时，被obj对象拥有，fn内部this指向了obj</li>
+    </ul>
+    <script>
+      // demo1
+      var a = 20;
+
+      function fn() {
+        console.log(this.a)
       }
-    }
-    console.log((false || foo.bar)()); // 1
+      fn(); // 20
+
+      // demo2
+      var a = 20;
+
+      function fn() {
+        function foo() {
+          console.log(this.a)
+        }
+        foo(); // 20
+      }
+      fn();
+
+      // demo3
+      var a = 20;
+      var obj = {
+        a: 10,
+        c: this.a + 20,
+        fn: function () {
+          return this.a;
+        }
+      }
+      console.log(obj.c); // 40
+      console.log(obj.fn()); //10
+    </script>
+  </div>
+  <div class="eg">
+    <p>若修改了上例中的demo3</p>
+    <p>因为采用了严格模式，则foo()独立调用，this不再能指向window，而是指向了undefind，而undefind并没有a属性，因此会报错。而下面的window.foo()，被window调用，foo()函数内部this指向了window，因此会打印40</p>
+    <script>
+      'use strict';
+      var a = 20;
+
+      function foo() {
+        var a = 1;
+        var obj = {
+          a: 10,
+          c: this.a + 20,
+          fn: function () {
+            return this.a;
+          }
+        }
+        return obj.c;
+
+      }
+      console.log(foo()); // 报错，Cannot read property 'a' of undefined。 
+      console.log(window.foo()); // ?
+    </script>
+  </div>
+  <div class="eg">
+    <p>这是一个容易迷糊的点</p>
+    <script>
+      var a = 20;
+      var foo = {
+        a: 10,
+        getA: function () {
+          return this.a
+        }
+      }
+      console.log(foo.getA()); // 10
+
+      var test = foo.getA;
+      console.log(test()); // 20
+    </script>
+  </div>
+  <script>
+    (function () {
+      var value = 1;
+      var foo = {
+        value: 2,
+        bar: function () {
+          return this.value;
+        }
+      }
+      console.log((false || foo.bar)()); // 1
+      // 这里这么理解： || &&这些都是运算符，有返回值，false || foo.bar返回foo.bar这个引用的函数，因此可以把返回值看成一个单独的函数，然后调用这个函数，属于独立调用。
+    })()
   </script>
+  <div class="eg">
+    <p>来说说使用
+      <span class="red">call</span>
+      <span class="red">apply</span>
+      <span class="red">bind</span>显示指定this的情况</p>
+    <p>来说下3个方法的区别</p>
+    <ul>
+      <li class="indent">apply和call是会直接调用函数，而bind则是返回了一个绑定了新的this的函数</li>
+      <li class="indent">3个函数第一个参数都是this执行，而第二个参数apply是一个数组，call和bind则把参数按照顺序依次传入</li>
+    </ul>
+    <script>
+      // 简单的例子
+      function fn() {
+        console.log(this.a);
+      }
+      var obj = {
+        a: 20
+      }
+      fn.call(obj); // 20
+    </script>
+    <script>
+      // 看下传参的不同
+      function fn(num1, num2) {
+        console.log(this.a + num1 + num2);
+      }
+
+      var obj = {
+        a: 20
+      }
+
+      fn.call(obj, 100, 10); // 130
+      fn.apply(obj, [20, 10]); // 50
+      fn.bind(obj, 10, 30)(); // 60
+    </script>
+  </div>
+  <div class="eg">
+    <p>关于
+      <span class="red bold">new</span>
+    </p>
+    <p>通过new调用的函数，称为构造函数，一旦new了就会生成一个新的实例对象，构造函数的this指向到这个新对象上</p>
+    <script>
+      function Person(name, age) {
+        // 这里的this指向了谁?
+        this.name = name;
+        this.age = age;
+      }
+
+      Person.prototype.getName = function () {
+        // 这里的this又指向了谁？
+        return this.name;
+      }
+
+      // 上面的2个this，是同一个吗，他们是否指向了原型对象？
+      var p1 = new Person('Nick', 20);
+      p1.getName();
+    </script>
+  </div>
 </body>
 
 </html>

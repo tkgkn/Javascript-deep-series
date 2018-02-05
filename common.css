@@ -1,0 +1,96 @@
+* {
+  padding: 0;
+  margin: 0;
+}
+
+p,
+div,
+span {
+
+  font-size: 14px;
+  font-family: "微软雅黑";
+}
+
+.bg-dark{
+  background-color: #535353;
+}
+
+ul{
+  margin: 8px auto;
+}
+
+ul li {
+  list-style: none;
+}
+
+ul li+li {
+  margin-top: 8px;
+}
+
+body {
+  padding: 16px;
+}
+
+p+p {
+  margin-top: 18px;
+}
+
+.red {
+  color: #e06666;
+}
+
+.blue {
+  color: #6fa8dc;
+}
+
+.orange {
+  color: #ff5722;
+}
+
+.yellow {
+  color: #ffd966;
+}
+
+.green {
+	color: #4caf50;
+}
+
+.bold {
+  font-weight: 600;
+}
+
+.min-font {
+  font-size: 12px !important;
+}
+
+.mid-font {
+  font-size: 14px !important;
+}
+
+.max-font {
+  font-size: 16px !important;
+}
+
+.indent {
+  padding-left: 18px;
+}
+
+.eg {
+  padding: 12px;
+  border: 1px solid #eee;
+  margin-top: 4px;
+}
+
+.code{
+	background: #f8f8f8;
+  padding: 6px 12px;
+}
+
+button {
+  background: #03a9f4;
+  color: #fbfbfb;
+  border: none;
+  outline: none;
+  padding: 2px 4px;
+  cursor: pointer;
+}

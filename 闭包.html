@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>闭包</title>
+	<link rel="stylesheet" href="./common.css">
+</head>
+<body>
+	<div class="eg">
+		<p><span class="bold red">《你不知道的JS》</span>一书中的解释是这样的</p>
+		<p>闭包是一个引用，引用了该函数所在声明位置的作用域，而该函数又在其声明位置以外被调用</p>
+		<script>
+			var scope = 'global scope';
+			function checkscope() {
+				var scope = 'local scope';
+				function f() {
+					return scope;
+				}
+				return f;
+			}
+			var foo = checkscope();
+			foo();
+			// 结合执行上下文来解释。
+		</script>
+		<ul>
+			<li class="indent">进入全局代码，创建全局上下文，全局上下文入栈</li>
+			<li class="indent">全局执行上下文初始化</li>
+			<li class="indent">遇到checkscope()，创建checkscope的执行上下文，然后checkscope执行上下文入栈，初始化，创建变量对象作用域链，this指向</li>
+			<li class="indent">checkscope执行完毕，出栈</li>
+			<li>执行foo()即执行f函数，创建f的执行上线文，f入栈，初始化，创建变量对象，作用域链，this等</li>
+			<li class="indent">f执行完毕，出栈</li>
+		</ul>
+		<p>按道理来说，一旦函数执行上下文出栈，则意味着执行上下文的销毁，但是f函数仍然在checkscope执行上下文出栈后引用了其内部的scope变量。闭包可以阻止垃圾回收器回收看似不在使用的内存，这里由于f函数声明的位置，让它可以通过作用域访问到外层的scope变量，checkscope所在作用域一直存活在内存中以供f函数调用。</p>
+		<p>在f函数执行上下文创建阶段，保存了作用域链到其的[[scope]]属性上[checkscopeContext.AO, globalContext.VO]，然后继续闯将f.VO，并压入到作用域链顶端。看下f函数维护的作用域链[f.AO, checkscopeContext.AO, globalContext.VO]，所以f可以顺着作用域链访问到checkscopeContext.AO</p>
+	</div>
+</body>
+</html>
