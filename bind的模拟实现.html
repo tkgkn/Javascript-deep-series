@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <title>bind的模拟</title>
+  <link rel="stylesheet" href="./common.css">
+</head>
+
+<body>
+  <div class="eg">bind其实就是返回一个绑定了this的函数，可以传参。</div>
+  <script>
+  // 根据上面的描述，可以这么写。
+  // 第一版本：绑定this
+  // Function.prototype.bind2 = function(context) {
+  // 	var fn = this;
+  // 	return function() {
+  // 		return fn.apply(context)
+  // 	}
+  // }
+  </script>
+  <div class="eg"><span class="red">bind</span>传参比较奇特，bind函数里可以传，然后，bind返回了一个函数，这个函数也可以传参。就会出现下面这种例子的情况</div>
+  <script>
+  // var foo = {
+  // 	value: 1
+  // }
+  // function add(a,b) {
+  // 	console.log(this.value + a + b); 
+  // }
+  // var addFn = add.bind(foo, 2);
+  // addFn(3); // 6
+  </script>
+  <script>
+  // 第二版，可以传参，且满足上面的例子传参方式
+  Function.prototype.bind2 = function(context) {
+    var fn = this;
+    var args = Array.prototype.slice.call(arguments, 1)
+    return function() {
+      var bindFnArgs = Array.prototype.slice.call(arguments);
+      return fn.apply(context, args.concat(bindFnArgs))
+    }
+  }
+  </script>
+  <div class="eg">一个工作中不怎么常用的方式。用bind返回的函数通过new操作符调用创建对象，这种行为就像是把原来的函数<span class="red">（fn.bind(obj)，即fn）</span>当成构造器</div>。但是需要注意的是，new的绑定方式this优先级是最高的，也就是说，会忽略bind里面传递的this对象。同时，还能够将其他参数提供给模拟函数。
+  <script>
+  	// 举个例子
+  	var value = 2;
+  	var foo = {
+  		value: 1
+  	}
+  	function bar(name, age) {
+  		this.habit = 'shopping';
+  		console.log(this.value);
+  		console.log(name);
+  		console.log(age);
+  	}
+  	bar.prototype.friend = 'kevin';
+  	var bindFoo = bar.bind(foo, 'dasiy');
+  	var obj = new bindFoo('18');
+  	// undefined 这里打印this.value没有，因为bind里指定的this对象foo被忽略了，此时的this指向bindFoo，而该对象上的value不存在，也就是undefined。
+  	// dasiy // 其他参数，不受影响
+  	// 18 // 其他参数，不受影响
+  	console.log(obj.habit, obj.friend); // shopping kevin
+  </script>
+  <div class="eg">看了上面的例子，接下来需要优化下this的指向，如果是作为构造函数调用，则this要绑定到new出的新对象上。</div>
+  <script>
+  	Function.prototype.bind2 = function(context) {
+  		var fn = this;
+  		var args = Array.prototype.slice.call(arguments, 1);
+  		var fBound = function() {
+  			var bindFnArgs = Array.prototype.slice.call(arguments);
+  			// fBound作为bind返回出去的函数被调用或者被构造调用，这个时候，去判断下此时的this和fBound的关系，
+        // 明白fBound其实是调用bind函数后返回的新函数，如果是用new的方式来调用fBound的话，则this肯定是fBound的实例，则可以判断是new的方式来使用，this就不用更改了。否则就让this指向我们传入的constext
+  			return fn.apply(this instanceof fBound ? this : context, args.concat(bindFnArgs));
+  		}
+  		// 上面的例子中，new出的实例对象也能访问原函数的原型链中的属性。所以我们要设置下原型
+      // 为什么要写这么一句。假设我们就调用一个普通构造函数，创建出来的实例里有一个__proto__指向构造函数的原型对象，而实例也可以访问原型对象里的属性和方法。所以我们需要将新创建的fBound函数的原型设置为原函数（这里的fn）的原型
+			fBound.prototype = fn.prototype;
+			return fBound;
+  	}
+  </script>
+  <script>
+  	// 上面一段代码，在处理原型链关系的函数，直接将fBound和原函数的prototype关联了，如果我们修改了fBound
+  </script>
+</body>
+
+</html>

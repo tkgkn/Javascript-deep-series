@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>call,apply,bind的模拟实现</title>
+  <link rel="stylesheet" href="./common.css">
+</head>
+
+<body>
+  <div class="eg">
+    首选，
+    <span class="red bold">call,apply</span>的方法区别，第一个参数一样，上下文指向。第二个参数，call传递一个个参数，apply传递一个数组。这2个方法调用的同时，也会调用原函数。
+    <span class="red bold">bind</span>，第一个参数也是上下文的指向。然后返回一个绑定了指定上下文对象的函数。不会执行，需要自行执行。
+  </div>
+  <div class="eg">
+    实现的思路：利用
+    <span class="red bold">隐式调用</span>，即obj.fn来调用。
+    <script>
+      // Function.prototype.call2 = function(context) {
+      //   // 获取调用call2的函数本身，fn.call2(cxt)，这么调用，所以this即是fn。
+      //   context.fn = this;
+      //   context.fn();
+      //   delete context.fn;
+      // }
+
+      // var foo = {
+      //   value: 1
+      // }
+
+      // function bar() {
+      //   console.log(this.value);
+      // }
+
+      // bar.call2(foo); // 1
+    </script>
+  </div>
+  <div class="eg">实现了this的绑定，还要实现参数的传递
+    <script>
+      // 希望是这样子的,fn.call2(this, one, two, ...)
+      Function.prototype.call2 = function (context) {
+        // 拿到所有参数，排除第一个this指向
+        context.fn = this;
+        // var args = arguments.slice(1); // 不能直接用slice，因为arguments是个类数组而已。
+        var args = [];
+        for (var i = 1; i < arguments.length; i++) {
+          // args.push(arguments[i]); // 这样并不行，因为下面的eval是需要执行js字符串语句的。直接把值扔进去，都会最终被转换为字符串。假设扔的是结果值。eval("context.fn('nike', 18)")， 相当于执行了context.fn(nike, 18)，会报错，nike is not defined。因此只能传递纯字符串，让eval自己去解析成js语句，我们这里改用"arguments[1]"
+          args.push("arguments[" + i + "]");
+        }
+        eval("context.fn(" + args + ")") // 不能直接传args.join(',')，因为是字符串，而我们是需要执行的，一些变量，因此考虑用eval，用eval，里面的args会自动执行toString()转换成字符串
+        delete context.fn
+      }
+
+      var foo = {
+        value: 1
+      }
+
+      function bar(name, age) {
+        console.log(name + age)
+        console.log(this.value)
+      }
+
+      bar.call2(foo, 'nike', 18);
+    </script>
+  </div>
+  <div class="eg">最后需要注意传参null的时候，this绑定到window上。函数可以返回自定义值，值其实就是
+    <span class="red">context.fn</span>函数的返回值。
+    <script>
+      // 只需要把上面的改造一下。传递的上下文做一个处理。
+      Function.prototype.call3 = function (context) {
+        context = context || window;
+        context.fn = this;
+        var args = [];
+        for (var i = 1; i < arguments.length; i++) { // args.push(arguments[i]); // 这样并不行，因为下面的eval是需要执行js字符串语句的。直接把值扔进去，都会最终被转换为字符串。假设扔的是结果值。eval("context.fn('nike', 18)")， 相当于执行了context.fn(nike, 18)， 会报错， nike is not defined。 因此只能传递纯字符串， 让eval自己去解析成js语句， 我们这里改用 "arguments[1]"
+          args.push("arguments[" + i + "]");
+        }
+        var result = eval("context.fn(" + args + ")") // 不能直接传args.join( ',')，因为是字符串，而我们是需要执行的，一些变量，因此考虑用eval，用eval，里面的args会自动执行toString()转换成字符串
+        return result;
+        delete context.fn
+      }
+      // 测试一下
+      var value = 2;
+
+      var obj = {
+        value: 1
+      }
+
+      function bar(name, age) {
+        console.log(this.value);
+        return {
+          value: this.value,
+          name: name,
+          age: age
+        }
+      }
+
+      bar.call3(null); // 2
+
+      console.log(bar.call3(obj, 'kevin', 18)); // {value: 1, name: "kevin", age: 18}
+    </script>
+  </div>
+  <div class="eg">看下apply的模拟实现，区别仅仅是参数是数组
+    <script>
+      // apply调用方式： fn.apply(this, arr)
+      Function.prototype.apply2 = function(context, arr){
+        var context = context || window;
+        context.fn = this;
+        var result;
+        var arg = [];
+        if (!arr || !arr.length) {
+          result = context.fn();
+        }else {
+          for (var i = 0; i < arr.length; i++) {
+            arg.push(arr[i])
+          };
+          result = eval('context.fn(' + arg + ')');
+        }
+        return result;
+      }
+
+      function add(c,d) {
+        return this.a + this.b + c + d;
+      }
+      var obj = {
+        a: 1,
+        b: 2
+      }
+      var ab = 4;
+      console.log(add.apply2(obj, [3,ab]));
+    </script>
+  </div>
+</body>
+
+</html>

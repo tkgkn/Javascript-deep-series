@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+    // 首先明确： JS里，函数的参数传递都是按值传递的。
+    // 也就是说，函数外部的值复制给函数内部的参数，就是把值从一个变量复制到另外一个变量。
+    
+    // 按值传递的简单例子
+    var value = 1;
+    function foo(v) {
+      v = 2;
+      console.log(v); // 2
+    }
+    foo(value);
+    console.log(value); // 1
+    // value传递到函数foo里时，就已经拷贝了一份value，所以v=2修改的是拷贝的那个value。原本的value（外层的）不变
+  </script>
+  <script>
+    // 引用传递，即传递的是对象的引用，函数内部对通过引用对该对象的操作，都会影响该对象的值。因为两者引用的是同一个对象。
+    // 按引用传递。并不是真正的引用传递，要明白！
+    var obj = {
+      value: 1
+    };
+    function foo(o) {
+      o.value = 2;
+      console.log(o.value); // 2
+    }
+    foo(obj);
+    console.log(obj.value); // 2
+    // 看起来引用传递成功了，但是JS高程中明确说清，函数的参数都是按值传递的。
+  </script>
+  <script>
+    // 第三种传递方式：共享传递
+    var obj = {
+      value: 1
+    };
+    function foo(o) {
+      o = 2;
+      console.log(o); // 2
+    }
+    foo(obj);
+    console.log(obj.value); // 1
+    // 按照第二段所述，如果是引用传递的话，函数内对o = 2的操作，应该会影响到它们同一个对象obj。然而，打印外部对象的value值，仍然是1，没有任何变化。 这就跟引用传递的描述不符了。所以JS中函数的参数传递并不是引用传递。
+    // 传递一个对象，其实就是共享传递，传递的不是对象，而是对象的引用的副本。所以，通过引用的副本来设置o.value，可以通过引用来找到原值。但是直接修改o，就是将引用副本完全重写了，引用副本被切断，重新赋值了。  而原本的引用及其引用的对象，还是原样。不会受到改变。
+  </script>
+</body>
+</html>

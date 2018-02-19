@@ -31,7 +31,7 @@
 			<li class="indent">f执行完毕，出栈</li>
 		</ul>
 		<p>按道理来说，一旦函数执行上下文出栈，则意味着执行上下文的销毁，但是f函数仍然在checkscope执行上下文出栈后引用了其内部的scope变量。闭包可以阻止垃圾回收器回收看似不在使用的内存，这里由于f函数声明的位置，让它可以通过作用域访问到外层的scope变量，checkscope所在作用域一直存活在内存中以供f函数调用。</p>
-		<p>在f函数执行上下文创建阶段，保存了作用域链到其的[[scope]]属性上[checkscopeContext.AO, globalContext.VO]，然后继续闯将f.VO，并压入到作用域链顶端。看下f函数维护的作用域链[f.AO, checkscopeContext.AO, globalContext.VO]，所以f可以顺着作用域链访问到checkscopeContext.AO</p>
+		<p>在f函数执行上下文创建阶段，保存了作用域链到其的[[scope]]属性上[checkscopeContext.AO, globalContext.VO]，然后继续创建f.VO，并压入到作用域链顶端。看下f函数维护的作用域链[f.AO, checkscopeContext.AO, globalContext.VO]，所以f可以顺着作用域链访问到checkscopeContext.AO</p>
 	</div>
 </body>
 </html>
