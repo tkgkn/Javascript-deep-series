@@ -20,7 +20,7 @@
     <span class="red bold">隐式调用</span>，即obj.fn来调用。
     <script>
       // Function.prototype.call2 = function(context) {
-      //   // 获取调用call2的函数本身，fn.call2(cxt)，这么调用，所以this即是fn。
+      //   // 获取调用call2的函数本身，fn.call2(cxt)，这么调用，函数调用方是fn，所以this指向fn，所以this即是fn。
       //   context.fn = this;
       //   context.fn();
       //   delete context.fn;
@@ -49,7 +49,7 @@
           // args.push(arguments[i]); // 这样并不行，因为下面的eval是需要执行js字符串语句的。直接把值扔进去，都会最终被转换为字符串。假设扔的是结果值。eval("context.fn('nike', 18)")， 相当于执行了context.fn(nike, 18)，会报错，nike is not defined。因此只能传递纯字符串，让eval自己去解析成js语句，我们这里改用"arguments[1]"
           args.push("arguments[" + i + "]");
         }
-        eval("context.fn(" + args + ")") // 不能直接传args.join(',')，因为是字符串，而我们是需要执行的，一些变量，因此考虑用eval，用eval，里面的args会自动执行toString()转换成字符串
+        eval("context.fn(" + args + ")") // 不能直接传args.join(',')，因为join处理后变成一长串字符串，而我们是需要执行的，参数可能会有一些变量，因此考虑用eval，用eval，里面的args会自动执行toString()转换成字符串
         delete context.fn
       }
 
@@ -101,7 +101,7 @@
       console.log(bar.call3(obj, 'kevin', 18)); // {value: 1, name: "kevin", age: 18}
     </script>
   </div>
-  <div class="eg">看下apply的模拟实现，区别仅仅是参数是数组
+  <div class="eg">看下apply的模拟实现，区别仅仅是参数是参数的处理方式不同
     <script>
       // apply调用方式： fn.apply(this, arr)
       Function.prototype.apply2 = function(context, arr){
